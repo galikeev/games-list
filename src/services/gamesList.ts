@@ -11,8 +11,8 @@ export const gamesApi = createApi({
       }),
       transformResponse: (response: Record<string, Game>) => {
         return Object.entries(response).map(([id, game]) => ({
-          id,
           ...game,
+          id,
         }));
       },
     }),
