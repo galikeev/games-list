@@ -1,4 +1,4 @@
-import { Box, CircularProgress, Container } from '@mui/material';
+import { CircularProgress, Container } from '@mui/material';
 import { GamePage, GamesList } from './components';
 import { Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 import { useGetGamesListQuery } from './services/gamesList';
@@ -9,9 +9,9 @@ function App() {
   return (
     <Container maxWidth="lg">
       {isFetching ? (
-        <Box sx={{ display: 'flex' }}>
+        <div className="block">
           <CircularProgress />
-        </Box>
+        </div>
       ) : (
         <Router>
           <Routes>
