@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardMedia, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, Stack } from '@mui/material';
 import { useAppDispatch, useAppSelector } from '../../hook';
-import { useGetGamesListQuery } from '../../services/gamesList';
 import { addMoreGames, collectProviders, selectProvider, selectRealKey, updateRealKeys } from '../../store/slices/gamesSlice';
 import { gamesData } from '../../store/selectors/gamesSelector';
 
@@ -10,16 +10,14 @@ import styles from './index.module.scss';
 const GamesList: React.FC = () => {
   const dispatch = useAppDispatch();
 
-  const { displayedGames, providers, realKeys, selectedProvider, selectedReal } = useAppSelector(gamesData);
-
-  const { data, isFetching } = useGetGamesListQuery('');
+  const { displayedGames, providers, realKeys, selectedProvider, selectedReal, games } = useAppSelector(gamesData);
 
   useEffect(() => {
-    if (data) {
+    if (games) {
       dispatch(collectProviders());
       dispatch(updateRealKeys());
     }
-  }, [data, dispatch]);
+  }, [games, dispatch]);
 
   const handleChangeProvider = (event: SelectChangeEvent) => {
     dispatch(selectProvider(event.target.value as string));
@@ -35,7 +33,7 @@ const GamesList: React.FC = () => {
 
   const filteredGames = useMemo(
     () =>
-      data?.filter((game) => {
+      games?.filter((game) => {
         if (selectedProvider && game.provider !== selectedProvider) {
           return false;
         }
@@ -44,20 +42,16 @@ const GamesList: React.FC = () => {
         }
         return true;
       }),
-    [data, selectedProvider, selectedReal]
+    [games, selectedProvider, selectedReal]
   );
 
-  const renderGames = () => {
-    if (isFetching) {
-      return <p>Loading...</p>;
-    }
+  const renderGames = useMemo(() => filteredGames?.slice(0, displayedGames), [displayedGames, filteredGames]);
 
-    const displayed = filteredGames?.slice(0, displayedGames);
+  const notAllGames = useMemo(() => filteredGames && displayedGames < filteredGames?.length, [displayedGames, filteredGames]);
 
-    const notAllGames = filteredGames && displayedGames < filteredGames?.length;
-
-    return (
-      <div>
+  return (
+    <div className={styles.block}>
+      <Stack spacing={2} direction="row">
         <FormControl fullWidth>
           <InputLabel id="demo-simple-select-label">Провайдер</InputLabel>
           <Select labelId="demo-simple-select-label" id="demo-simple-select" value={selectedProvider} label="Провайдер" onChange={handleChangeProvider}>
@@ -78,22 +72,34 @@ const GamesList: React.FC = () => {
             ))}
           </Select>
         </FormControl>
+      </Stack>
+      {renderGames?.length ? (
         <div className={styles.wrapper}>
-          {displayed?.map((game) => (
+          {renderGames?.map((game) => (
             <Stack key={game.id}>
               <Card>
-                <CardMedia component="img" image={`https://cdn2.softswiss.net/i/s2/${game.id}.png`} alt="Paella dish" />
+                <Link to={`/games/${encodeURIComponent(game.id)}`}>
+                  <CardMedia component="img" image={`https://cdn2.softswiss.net/i/s2/${game.id}.png`} alt="Paella dish" />
+                </Link>
               </Card>
-              <h3>{game.title}</h3>
+              <h4>{game.title}</h4>
             </Stack>
           ))}
         </div>
-        {notAllGames && <button onClick={handleMoreGames}>Показать еще</button>}
-      </div>
-    );
-  };
-
-  return <>{renderGames()}</>;
+      ) : (
+        <div>
+          <span className={styles.emptyText}>Данных нет</span>
+        </div>
+      )}
+      {notAllGames && (
+        <div>
+          <button onClick={handleMoreGames} className={styles.buttonMore}>
+            Показать еще
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default GamesList;

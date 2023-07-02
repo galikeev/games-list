@@ -1,6 +1,22 @@
+.block {
+  margin-top: 25px;
+}
+
 .wrapper {
+  margin-top: 25px;
   display: grid;
   grid-template-columns: repeat(6, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 10px;
+}
+
+.emptyText {
+  display: block;
+  text-align: center;
+  margin-top: 25px;
+}
+
+.buttonMore {
+  display: block;
+  margin: auto;
 }

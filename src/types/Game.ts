@@ -44,7 +44,7 @@ export interface Real {
 }
 
 export interface Game {
-  id?: string;
+  id: string;
   title: string;
   provider: string;
   collections: Collectiions;
